@@ -31,16 +31,14 @@
 - [x] 整期 `scenes.js`：L 形小岛（原木、刷石机的三个坑单独做成方块，可挖）、树叶腐烂、合成界面、箱子界面、刷石机（冰化成水 → 岩浆流过去 → 圆石，挖掉 0.9 秒后再生）、往东搭 4 格圆石、延时（天色走两轮，平台 / 房子 / 农田一块块长出来）、OneBlock、商标裁定卡片；按估计时间轴抽帧检查过
 - [x] 配音（4 个云端会话并行，每句 4 遍挑最好）→ 真时间轴 2:26（145.5 秒）；回听全部和原文一致（撸树→卢树、圆石→原石是同音）
 - [x] 字体裁剪、音效点、混音（安静版 cheer）；按真时间轴复查抽帧、转身最快 178°/秒
-- [~] 分段渲染（60 帧，8 段 × 20 秒，4 个云端会话各渲两段：PARTS=0-1、2-3、4-5、6-7，各自推送）→ 本机 `git pull` 后 `FPS=60 tools/render_parts.sh ep04-skyblock` 拼接 →
-  两遍编码压到 90 MB 以内 → **1080p 先提交仓库**、撤掉分段 → 720p60 预览发用户 → 关掉定时任务
-- [ ] 封面、字幕、`publish.md`、README
+- [x] 分段渲染（60 帧，8 段 × 20 秒，4 个云端会话各渲两段）→ 本机拼接（8732 帧 = 145.53 秒，接缝逐段检查连续）→ 成片 50 MB，不用再压
+- [x] **1080p 成片已提交**：`ep04-skyblock/out/ep04-skyblock-1080p.mp4`（提交 4cf8e85），分段已撤掉；720p60 预览已发给用户
+- [x] 封面（`out/cover.png`、`cover-4x3.png`）、字幕（`out/subtitles.srt`）、`publish.md`、README
+- [x] 关掉定时任务 `trig_01VwV2mLCZyaYah3VLEbdjo6`
 
 ## 下一步
 
-渲染（见进度里那一条）。下面是之前的配音分工：
-
-配音分给 4 个云端会话（K01–K07、K08–K13、K14–K19、K20–K25，各自 `tools/tts.py ep04-skyblock --only ...` 后推送 `data/tts/`）；
-本机同时写动作系统扩展（挖方块）和整期 `scenes.js`。四批都推上来以后：`git pull` → `python3 tools/tts.py ep04-skyblock` 出真时间轴。
+**全部完成**，等用户看预览的反馈。用户有意见就先记进 `FEEDBACK.md`，改 `src/scenes.js` 后重新分段渲染（`FPS=60 SEG=20 COMMIT=1 PARTS=a-b tools/render_parts.sh ep04-skyblock`，可分给多个会话）。
 
 ## 环境（新会话要先装好）
 
