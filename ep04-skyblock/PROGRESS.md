@@ -38,7 +38,7 @@
 
 ## 下一步
 
-**全部完成**，等用户看预览的反馈。用户有意见就先记进 `FEEDBACK.md`，改 `src/scenes.js` 后重新分段渲染（`FPS=60 SEG=20 COMMIT=1 PARTS=a-b tools/render_parts.sh ep04-skyblock`，可分给多个会话）。
+**全部完成，用户已确认定稿**（第三版预览：“可以 没什么问题”）。用户有意见就先记进 `FEEDBACK.md`，改 `src/scenes.js` 后重新分段渲染（`FPS=60 SEG=20 COMMIT=1 PARTS=a-b tools/render_parts.sh ep04-skyblock`，可分给多个会话）。
 
 ## 环境（新会话要先装好）
 
