@@ -283,6 +283,7 @@ function matchFrame(t) {
   // OneBlock：每 0.8 秒换一种（挖掉 → 刷新）
   const ok = t >= T.tOne - 1 ? Math.floor((t - T.tOne + 1) / 0.8) : 0;
   S.one.forEach((m, i) => { m.visible = t >= T.tOne - 1 && t < L('K19').start && i === ok % S.one.length; });
+  if (S.coverMe) S.coverMe.group.visible = false;
   // 我：相机 = 眼睛
   const s = sample(me, t);
   const bv = placeCamera(st.camera, s);
@@ -500,3 +501,42 @@ for (const s of TL.scenes) SCENES[s.id] = { trans: 'cut', bars: () => 0, subLift
 window.__camProbe = t => { const s = sample(match().me, t); return [s.x, s.y + s.eye, s.z, s.yaw, s.pitch]; };
 window.__simEvents = () => match().sim.events.map(e => [e.t.toFixed(2), e.kind, e.x, e.y, e.z, e.who, e.block || '']);
 window.__T = () => mt();
+
+// =================================================================== 封面（16:9 和 4:3）：长大的空岛悬在虚空里，最早那座 L 形小岛还在中间；岛上站着一个人
+function coverStage() {
+  const st = matchFrame(150);
+  const S = skyWorld();
+  st.setPreset('cine_morning');
+  if (S.hand) S.hand.group.visible = false;
+  if (!S.coverMe) { S.coverMe = makePlayer({ skin: { shirt: '#3a7bd5', seed: 2 } }); st.add(S.coverMe); }
+  S.coverMe.group.visible = true; at(S.coverMe, 4.5, 1, 2.5, -Math.PI / 2 - 0.4); S.coverMe.pose({ look: [0.3, 0.1] });
+  S.one.forEach(m => { m.visible = false; });
+  st.focus.set(5, 0, 1); st.placeSun();
+  return st;
+}
+const coverLook = (st, pos, target, fov) => { const o = window.__coverCam; st.camera.rotation.order = 'XYZ'; return o && o.pos ? st.look(o.pos, o.target, o.fov) : st.look(pos, target, fov); };
+const coverBase = { bars: () => 0, satGuard: false, glow: 0.18, tone: false, look: () => 'saturate(1.12) brightness(1.03)' };
+SCENES.__cover = {
+  ...coverBase,
+  frame() { const st = coverStage(); coverLook(st, [5, 9, 23], [-4.5, 3.5, 0], 40); return st; },
+  overlay(g) {
+    const gr = g.createLinearGradient(0, 0, W * 0.7, 0);
+    gr.addColorStop(0, 'rgba(6,12,24,0.78)'); gr.addColorStop(0.6, 'rgba(6,12,24,0.38)'); gr.addColorStop(1, 'rgba(6,12,24,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    O.kicker(g, '我的世界小游戏起源 · 第四期', 118, 330, 1, { align: 'left', size: 40, spacing: 8, color: O.COL.brass, family: O.FONT.serif, weight: 600 });
+    O.txt(g, '空岛生存', 104, 590, { size: 250, family: O.FONT.serif, weight: 900, color: O.COL.bone, spacing: 12, shadowBlur: 40, shadowColor: 'rgba(0,0,0,0.6)' });
+    O.txt(g, '一座小岛，怎么火了十五年？', 116, 740, { size: 84, family: O.FONT.serif, weight: 900, color: O.COL.bone, spacing: 4, shadowBlur: 30, shadowColor: 'rgba(0,0,0,0.6)' });
+  },
+};
+SCENES.__cover43 = {
+  ...coverBase,
+  frame() { const st = coverStage(); coverLook(st, [5, 9, 23], [5, 4.5, 0], 40); return st; },
+  overlay(g) {
+    const gr = g.createLinearGradient(0, 0, 0, H * 0.6);
+    gr.addColorStop(0, 'rgba(6,12,24,0.82)'); gr.addColorStop(0.65, 'rgba(6,12,24,0.4)'); gr.addColorStop(1, 'rgba(6,12,24,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, W, H * 0.6);
+    O.kicker(g, '我的世界小游戏起源 · 第四期', W / 2, 130, 1, { size: 42, spacing: 8, color: O.COL.brass, family: O.FONT.serif, weight: 600 });
+    O.txt(g, '空岛生存', W / 2, 372, { size: 236, family: O.FONT.serif, weight: 900, color: O.COL.bone, spacing: 14, align: 'center', shadowBlur: 40, shadowColor: 'rgba(0,0,0,0.65)' });
+    O.txt(g, '一座小岛，怎么火了十五年？', W / 2, 500, { size: 80, family: O.FONT.serif, weight: 900, color: O.COL.bone, spacing: 4, align: 'center', shadowBlur: 30, shadowColor: 'rgba(0,0,0,0.6)' });
+  },
+};
