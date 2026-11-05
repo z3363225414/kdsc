@@ -6,3 +6,5 @@ fonttools
 brotli
 # Qwen3-TTS（EP02 第七轮起的旁白引擎）：先装 CPU 版 torch：pip install --index-url https://download.pytorch.org/whl/cpu torch torchaudio
 qwen-tts
+# EP04：个别字改音调（tts.py 的 bend）
+praat-parselmouth

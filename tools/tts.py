@@ -551,6 +551,35 @@ def srt_time(t):
     return f'{ms // 3600000:02d}:{ms // 60000 % 60:02d}:{ms // 1000 % 60:02d},{ms % 1000:03d}'
 
 
+def bend_tones(x, sr, bends):
+    """把录音里某个字改成降调（比如轻声的“地”改念四声 dè，换字做不到时用）。
+    bends: [{"at": [开始秒, 结束秒], "hi": 起点赫兹, "lo": 终点赫兹, "gain": 这个字放大几倍}]，时间是原始录音里的。
+    用 Praat 的 PSOLA 只改这一段的音高（按半音线性下降），长度不变；需要 pip install praat-parselmouth。"""
+    import parselmouth
+    from parselmouth.praat import call
+    for b in bends:
+        a, e = b['at']
+        snd = parselmouth.Sound(x.astype(float), sr)
+        m = call(snd, 'To Manipulation', 0.01, 40, 500)
+        pt = call(m, 'Extract pitch tier')
+        call(pt, 'Remove points between', a - 0.005, e + 0.005)
+        for t in np.linspace(a + 0.01, e - 0.01, 8):
+            r = (t - a) / (e - a)
+            call(pt, 'Add point', t, b['hi'] * (b['lo'] / b['hi']) ** r)
+        call([pt, m], 'Replace pitch tier')
+        y = call(m, 'Get resynthesis (overlap-add)').values[0]
+        n = len(x); y = y[:n] if len(y) >= n else np.pad(y, (0, n - len(y)))
+        env = np.ones(n); i0, i1 = int((a - 0.03) * sr), int((e + 0.03) * sr)
+        env[i0:i1] += (b.get('gain', 1.0) - 1) * np.hanning(i1 - i0)
+        y = y * env
+        # 只换这个字前后一小段，其余保留原始录音（整句重合成会让别的字也变一点，识别都会听错）
+        w = np.zeros(n); f = int(0.02 * sr); j0, j1 = int((a - 0.05) * sr), int((e + 0.05) * sr)
+        w[j0:j1] = 1; w[j0 - f:j0] = np.linspace(0, 1, f); w[j1:j1 + f] = np.linspace(1, 0, f)
+        y = x * (1 - w) + y * w
+        x = (y / max(1.0, np.abs(y).max() / 0.98)).astype(np.float32)
+    return x
+
+
 def cut_spans(x, sr, spans):
     """剪掉录音里的几段（[开始秒, 结束秒]，结束可以写很大表示剪到末尾），接缝处 15 毫秒交叉淡化。
     用来去掉挑中的那一遍里个别的杂音：句尾多念出来的几个字、句首的重复字、逗号处的长气口。"""
@@ -669,6 +698,8 @@ def main():
         for line in scene['lines']:
             say = say_text(line, voice)
             x, _ = sf.read(paths[line['id']], dtype='float32')
+            if line.get('bend'):
+                x = bend_tones(x, SR, line['bend'])
             if line.get('cut'):
                 x = cut_spans(x, SR, line['cut'])
             if asr is not None:
