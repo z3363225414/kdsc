@@ -24,9 +24,9 @@
 ## 进度
 
 - [x] 接入 `kdsc`，复制 EP03 的工具链和代码，写 `CLAUDE.md`、本文件、`FEEDBACK.md`
-- [x] 定时任务：每隔几小时唤醒这个会话，读本文件接着做（全部完成后关掉）
-- [ ] 史料检索 → `facts.md`
-- [ ] 分镜旁白 → `script.json`
+- [x] 定时任务 `trig_01VwV2mLCZyaYah3VLEbdjo6`：每 3 小时（:23 分）唤醒这个会话，读本文件接着做（全部完成后关掉）
+- [x] 史料检索 → `facts.md`（15 条 + 能说 / 不能说；钩子：2019 年申请商标 → 2026-05-11 裁定“Skyblock”只是描述、不能注册 → 第二天撤下原版地图）
+- [x] 分镜旁白 → `script.json`（8 段 25 句，估计 2:50：两条规矩 → 撸树做工作台 → 刷石机 → 扩岛（skyblock.net、ASkyBlock）→ 盖房种地（Hypixel SkyBlock）→ OneBlock → 商标 → 结尾）
 - [ ] 动作系统扩展（挖方块、倒水倒岩浆）+ 整期 `scenes.js`；先按估计时间轴（`tools/fake_timeline.py`）抽帧检查
 - [ ] 配音（多会话并行：每个会话 `tools/tts.py ep04-skyblock --only <几句>`，各自推送）→ 本机 `python3 tools/tts.py ep04-skyblock` 出时间轴
 - [ ] 字体裁剪、音效点、混音
@@ -35,7 +35,8 @@
 
 ## 下一步
 
-史料检索，写 `facts.md`。
+配音分给 4 个云端会话（K01–K07、K08–K13、K14–K19、K20–K25，各自 `tools/tts.py ep04-skyblock --only ...` 后推送 `data/tts/`）；
+本机同时写动作系统扩展（挖方块）和整期 `scenes.js`。四批都推上来以后：`git pull` → `python3 tools/tts.py ep04-skyblock` 出真时间轴。
 
 ## 环境（新会话要先装好）
 
