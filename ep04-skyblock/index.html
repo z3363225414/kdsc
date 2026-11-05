@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>空岛生存的起源</title>
+<script type="importmap">{ "imports": { "three": "./vendor/three/three.module.js" } }</script>
+<style>
+  @font-face { font-family: 'FP'; src: url('assets/fonts/fusion-pixel-12px-zh_hans.woff2') format('woff2'); font-display: block; }
+  @font-face { font-family: 'NotoSerif'; font-weight: 600; src: url('assets/fonts/NotoSerifSC-600.woff2') format('woff2'); font-display: block; }
+  @font-face { font-family: 'NotoSerif'; font-weight: 900; src: url('assets/fonts/NotoSerifSC-900.woff2') format('woff2'); font-display: block; }
+  @font-face { font-family: 'NotoSC'; font-weight: 500; src: url('assets/fonts/NotoSansSC-500.woff2') format('woff2'); font-display: block; }
+  @font-face { font-family: 'NotoSC'; font-weight: 700; src: url('assets/fonts/NotoSansSC-700.woff2') format('woff2'); font-display: block; }
+  @font-face { font-family: 'NotoSC'; font-weight: 900; src: url('assets/fonts/NotoSansSC-900.woff2') format('woff2'); font-display: block; }
+  :root { --bg: #07080c; --fg: #e8e4da; --bar: rgba(10, 11, 16, 0.86); --accent: #ffd24d; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  #stage { position: fixed; inset: 0 0 52px 0; display: flex; align-items: center; justify-content: center; }
+  canvas { width: min(100vw, calc((100vh - 52px) * 16 / 9)); aspect-ratio: 16 / 9; background: #000; }
+  #bar { position: fixed; left: 0; right: 0; bottom: 0; height: 52px; box-sizing: border-box; display: flex; gap: 12px; align-items: center; padding: 0 16px; background: var(--bar); }
+  #bar button { font: inherit; color: #111; background: var(--accent); border: 0; padding: 6px 14px; cursor: pointer; }
+  #seek { flex: 1; accent-color: var(--accent); }
+  #time { font-variant-numeric: tabular-nums; min-width: 92px; text-align: right; }
+  body.render #bar { display: none; }
+  body.render #stage { inset: 0; }
+  body.render canvas { width: 1920px; height: 1080px; }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="c" width="1920" height="1080"></canvas></div>
+<div id="bar">
+  <button id="play">▶ 播放</button>
+  <input id="seek" type="range" min="0" max="1000" value="0" aria-label="进度">
+  <span id="time">0:00</span>
+</div>
+<audio id="audio" src="assets/audio/mix.mp3" preload="auto"></audio>
+<script src="data/timeline.js"></script>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

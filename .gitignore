@@ -1,0 +1,14 @@
+models
+__pycache__/
+*/out/frames/
+*/out/sheet/
+*/out/stills/
+*/out/qa*.jpg
+*/data/tts/
+*/data/*.wav
+# EP02 起（EP04 沿用）每句旁白（FLAC）随仓库提交，见 tools/tts.py
+!ep04-skyblock/data/tts/
+ep04-skyblock/data/tts/*.wav
+# 分段渲染的中间结果（tools/render_parts.sh；COMMIT=1 时才强制提交，用来备份没渲完的长片）
+*/out/parts/
+*/out/stills/
