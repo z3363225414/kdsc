@@ -1,0 +1,155 @@
+[
+ {
+  "t": 0,
+  "sfx": "score",
+  "name": "soft",
+  "scene": "rules"
+ },
+ {
+  "t": 21.927,
+  "sfx": "score",
+  "name": "light",
+  "scene": "rules"
+ },
+ {
+  "t": 24.083333333333332,
+  "sfx": "pop",
+  "scene": "rules"
+ },
+ {
+  "t": 24.841666666666665,
+  "sfx": "pop",
+  "scene": "rules"
+ },
+ {
+  "t": 25.6,
+  "sfx": "pop",
+  "scene": "rules"
+ },
+ {
+  "t": 26.358333333333334,
+  "sfx": "pop",
+  "scene": "rules"
+ },
+ {
+  "t": 27.575,
+  "sfx": "click",
+  "scene": "rules"
+ },
+ {
+  "t": 29.099999999999998,
+  "sfx": "place",
+  "scene": "rules"
+ },
+ {
+  "t": 36.273,
+  "sfx": "score",
+  "name": "melody",
+  "scene": "rules"
+ },
+ {
+  "t": 36.375,
+  "sfx": "chest",
+  "scene": "rules"
+ },
+ {
+  "t": 40.40833333333333,
+  "sfx": "pop",
+  "scene": "rules"
+ },
+ {
+  "t": 41.30833333333333,
+  "sfx": "pop",
+  "scene": "rules"
+ },
+ {
+  "t": 42.233333333333334,
+  "sfx": "pop",
+  "scene": "rules"
+ },
+ {
+  "t": 43.05,
+  "sfx": "place",
+  "scene": "rules"
+ },
+ {
+  "t": 43.858333333333334,
+  "sfx": "place",
+  "scene": "rules"
+ },
+ {
+  "t": 46.05833333333334,
+  "sfx": "snuff",
+  "scene": "rules"
+ },
+ {
+  "t": 46.75833333333333,
+  "sfx": "pop",
+  "scene": "rules"
+ },
+ {
+  "t": 47.65833333333333,
+  "sfx": "snuff",
+  "scene": "rules"
+ },
+ {
+  "t": 48.858333333333334,
+  "sfx": "pop",
+  "scene": "rules"
+ },
+ {
+  "t": 49.75833333333333,
+  "sfx": "snuff",
+  "scene": "rules"
+ },
+ {
+  "t": 50.697,
+  "sfx": "score",
+  "name": "mid",
+  "scene": "rules"
+ },
+ {
+  "t": 54.36666666666667,
+  "sfx": "place",
+  "scene": "rules"
+ },
+ {
+  "t": 55.141666666666666,
+  "sfx": "place",
+  "scene": "rules"
+ },
+ {
+  "t": 55.916666666666664,
+  "sfx": "place",
+  "scene": "rules"
+ },
+ {
+  "t": 56.68333333333333,
+  "sfx": "place",
+  "scene": "rules"
+ },
+ {
+  "t": 72.80799999999999,
+  "sfx": "score",
+  "name": "sparkle",
+  "scene": "rules"
+ },
+ {
+  "t": 91.417,
+  "sfx": "score",
+  "name": "light",
+  "scene": "rules"
+ },
+ {
+  "t": 102.778,
+  "sfx": "score",
+  "name": "soft",
+  "scene": "rules"
+ },
+ {
+  "t": 130.884,
+  "sfx": "score",
+  "name": "finale",
+  "scene": "rules"
+ }
+]

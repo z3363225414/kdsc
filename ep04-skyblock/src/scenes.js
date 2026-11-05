@@ -144,8 +144,8 @@ function match() {
     me.placeAt(0, GEN.water, 'ice', { hold: 'ice' });
     me.look(T.tGen - 0.6, { at: [GEN.cobble[0] + 0.5, 0.6, GEN.cobble[2] + 0.5], w: 3 });
     // 出了圆石：挖两次（每次挖完岩浆又流过来，又是一块）
-    me.mine(T.tGen + 1.2, GEN.cobble, { dur: 0.7, hold: null });
-    me.mine(T.tGen + 3.4, GEN.cobble, { dur: 0.7 });
+    me.mine(T.tGen + 1.8, GEN.cobble, { dur: 0.7, hold: null });
+    me.mine(T.tGen + 3.9, GEN.cobble, { dur: 0.7 });
     // 扩岛：走到东头，转身蹲着往后搭 4 格圆石
     me.goto(T.tExpand + 0.3, [[5.5, 2.5]], 'walk', { look: { path: -0.2, w: 4 } });
     me.bridge(T.tBridge, [1, 0], BRIDGE_N, { block: 'cobble', hold: 'cobble', open: true });

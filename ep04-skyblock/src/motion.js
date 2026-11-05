@@ -160,7 +160,7 @@ export class Agent {
       const [cx, cy, cz] = k.cell;
       if (!k.aimed) {
         // 先把视线转到方块中心（任务开始时已经设了 look），对准了再动手
-        if (!k.lk) { k.lk = { at: [cx + 0.5, cy + 0.5, cz + 0.5], w: k.w ?? 7, vmax: 2.6 }; this.look(t, k.lk); k.t1 = t; }
+        if (!k.lk) { k.lk = { at: [cx + 0.5, cy + 0.5, cz + 0.5], w: k.w ?? 6, vmax: 1.9 }; this.look(t, k.lk); k.t1 = t; }
         const ty = Math.atan2(cx + 0.5 - this.x, -(cz + 0.5 - this.z));
         const ey = Math.abs(wrap(ty - this.yaw.x));
         if (ey < 0.12 || t - k.t1 > 0.8) { k.aimed = t; if (k.kind === 'mine') this.sim.events.push({ t, kind: 'mine', x: cx, y: cy, z: cz, dur: k.dur, who: this.name }); }
