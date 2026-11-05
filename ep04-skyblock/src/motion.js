@@ -35,9 +35,9 @@ function spring(s, target, w, zeta, vmax, dt) {
 export class Sim {
   constructor(world, duration) {
     this.world = world; this.duration = duration;
-    this.agents = []; this.placed = new Map(); this.events = [];
+    this.agents = []; this.placed = new Map(); this.removed = new Set(); this.events = [];
   }
-  solid(x, y, z) { return this.placed.has(`${x},${y},${z}`) || this.world.solid(x, y, z); }
+  solid(x, y, z) { const k = `${x},${y},${z}`; return this.placed.has(k) || (!this.removed.has(k) && this.world.solid(x, y, z)); }
   // 碰撞箱 [x±0.3, y..y+h, z±0.3] 有没有碰到方块
   hits(x, y, z, h = 1.8) {
     for (let bx = Math.floor(x - HALF + 1e-4); bx <= Math.floor(x + HALF - 1e-4); bx++)
@@ -104,6 +104,10 @@ export class Agent {
   // 到了时间（而且前面的事做完了）就做一个动作：右键 / 左键一下，记一个事件（场景按事件的真实时间画开箱等），再站 dur 秒
   act(t, name, o = {}) { return this.do(t, { kind: 'act', name, dur: o.dur ?? 0.5, swing: o.swing ?? 'use', ...o }); }
   wait(t, until) { return this.do(t, { kind: 'wait', until }); }
+  // 挖一个方块：看着它、一直挥手（原版每 0.25 秒挥一下），dur 秒后方块碎掉（事件 mine / break）
+  mine(t, cell, o = {}) { return this.do(t, { kind: 'mine', cell, dur: o.dur ?? 1.0, ...o }); }
+  // 在某一格放一个方块（看着它、右键一下）
+  placeAt(t, cell, block, o = {}) { return this.do(t, { kind: 'placeAt', cell, block, ...o }); }
   // 事件的真实时间（没发生过就是 Infinity）
   when(name) { const e = this.sim.events.find(e => e.who === this.name && e.kind === name); return e ? e.t : Infinity; }
 
@@ -149,6 +153,28 @@ export class Agent {
       this.gait = 'stop';
       if (!k.fired) { k.fired = t; if (k.swing) this.swings.push({ t, kind: k.swing }); this.sim.events.push({ t, kind: k.name, who: this.name }); }
       if (t - k.fired >= k.dur) k.done = true;
+      return;
+    }
+    if (k.kind === 'mine' || k.kind === 'placeAt') {
+      this.gait = 'stop';
+      const [cx, cy, cz] = k.cell;
+      if (!k.aimed) {
+        // 先把视线转到方块中心（任务开始时已经设了 look），对准了再动手
+        if (!k.lk) { k.lk = { at: [cx + 0.5, cy + 0.5, cz + 0.5], w: k.w ?? 7, vmax: 2.6 }; this.look(t, k.lk); k.t1 = t; }
+        const ty = Math.atan2(cx + 0.5 - this.x, -(cz + 0.5 - this.z));
+        const ey = Math.abs(wrap(ty - this.yaw.x));
+        if (ey < 0.12 || t - k.t1 > 0.8) { k.aimed = t; if (k.kind === 'mine') this.sim.events.push({ t, kind: 'mine', x: cx, y: cy, z: cz, dur: k.dur, who: this.name }); }
+        else return;
+      }
+      if (k.kind === 'placeAt') { this.place(t, cx, cy, cz, k.block); k.done = true; return; }
+      // 挖的时候每 0.25 秒挥一下手
+      if (!k.nextSwing || t >= k.nextSwing) { this.swings.push({ t, kind: 'attack' }); k.nextSwing = t + 0.25; }
+      if (t - k.aimed >= k.dur) {
+        const key = `${cx},${cy},${cz}`;
+        if (this.sim.placed.has(key)) this.sim.placed.delete(key); else this.sim.removed.add(key);
+        this.sim.events.push({ t, kind: 'break', x: cx, y: cy, z: cz, who: this.name });
+        k.done = true;
+      }
       return;
     }
     if (k.kind === 'wait') { this.gait = 'stop'; if (t >= k.until) k.done = true; return; }
@@ -200,6 +226,7 @@ export class Agent {
         this.gait = 'sneak';
       }
       // 放够了：退到对面的地上（离最后一块再退 1 格多）就停
+      if (k.placedN >= k.n && k.open) { if (!k.settle) k.settle = t; if (t - k.settle > 0.3) k.done = true; this.gait = 'stop'; this.inputX = this.inputZ = 0; return; }   // 往虚空里搭：放够了就停在最后一块上
       if (k.placedN >= k.n) {
         const past = (this.x - k.last[0]) * dx + (this.z - k.last[1]) * dz;
         if (past > 1.15) { if (!k.settle) k.settle = t; if (t - k.settle > 0.2) k.done = true; this.gait = 'stop'; return; }

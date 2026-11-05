@@ -130,6 +130,23 @@ function snow() { return paint(31, noiseOf(P(['#f3f6fa', '#e8eef6', '#f8fbff']))
 function clay() { return paint(32, noiseOf(P(['#a96b4e', '#a3654a', '#b07253']))); }
 function darkPlanks() { return planks(33, ['#5a3f26', '#53391f', '#61452a'], '#3a2816'); }
 
+// EP04 新增：圆石、水、岩浆、冰、耕地、小麦
+function cobble() {
+  // 一块块圆圆的石头，缝里暗一些
+  const cells = []; const r0 = rng(140);
+  for (let k = 0; k < 11; k++) cells.push([r0() * 16, r0() * 16, 0.82 + r0() * 0.3]);
+  return paint(141, (x, y, r) => {
+    let d1 = 99, d2 = 99, k1 = 1;
+    for (const [cx, cy, k] of cells) for (const ox of [-16, 0, 16]) for (const oy of [-16, 0, 16]) { const d = Math.hypot(x + 0.5 - cx - ox, y + 0.5 - cy - oy); if (d < d1) { d2 = d1; d1 = d; k1 = k; } else if (d < d2) d2 = d; }
+    if (d2 - d1 < 1.0) return mul(hex('#4e4e52'), 0.95 + r() * 0.1);
+    return mul(hex('#8a8a8e'), k1 * (0.94 + r() * 0.1) * (d1 < 2 ? 1.08 : 1));
+  });
+}
+function water() { return paint(142, (x, y, r) => mul(hex('#3f76e4'), 0.88 + 0.12 * Math.sin((x + y * 0.6) * 0.9) + r() * 0.05)); }
+function lava() { return paint(143, (x, y, r) => { const v = Math.sin(x * 0.7 + Math.sin(y * 0.5) * 2) * Math.cos(y * 0.6 - x * 0.2); return mul(v > 0.35 ? hex('#ffd24a') : v > -0.2 ? hex('#f07a18') : hex('#c8400e'), 0.95 + r() * 0.08); }); }
+function ice() { return paint(144, (x, y, r) => ((x + 2 * y) % 11 === 0 || (2 * x - y + 16) % 13 === 0) ? hex('#d8ecff') : mul(hex('#7fb0f0'), 0.95 + r() * 0.08)); }
+function farmland() { return paint(145, (x, y, r) => (y % 4 === 0 ? mul(hex('#3e2a18'), 0.9 + r() * 0.1) : mul(pick(r, P(['#5a3d24', '#664629', '#4f351f'])), 0.95 + r() * 0.08))); }
+function wheat() { return paint(146, (x, y, r) => (x % 3 === 1 && y > 2 ? mul(y < 7 ? hex('#d8b544') : hex('#8fae3a'), 0.9 + r() * 0.15) : [0, 0, 0, 0])); }
 const TEAM_HEX = { red: '#c8423b', blue: '#3c6fd1', green: '#4caf3f', yellow: '#e2bd35', white: '#e9ecec', purple: '#8b4fd1', orange: '#e0843a', black: '#2a2a30', gray: '#7d7d82', cyan: '#2fb5b5', pink: '#e58fb0' };
 export const TEAM = Object.fromEntries(Object.entries(TEAM_HEX).map(([k, v]) => [k, new THREE.Color(v)]));
 export const TEAM_CSS = TEAM_HEX;
@@ -144,6 +161,7 @@ const TILE_DEFS = {
   emerald: () => bevel('#35c66a', '#a9f6c2', '#1c8f47', (x, y) => (Math.abs(x - 7.5) + Math.abs(y - 7.5) < 5 ? hex('#4fe08a') : null)),
   copper: () => bevel('#c46a3c', '#f0a070', '#8a4220', (x, y) => ((x * 3 + y) % 7 === 0 ? hex('#d88050') : null)),
   craft_top: craftTop, craft_side: craftSide, glass, lantern, snow, clay, dark_planks: darkPlanks,
+  cobble, water, lava, ice, farmland_top: farmland, wheat,
   glow_white: () => glow('#fff4d0'), glow_gold: () => glow('#ffd36a'), stone_dark: () => stone(34, ['#5b5b60', '#636369', '#55555a']),
 };
 for (const [name, c] of Object.entries(TEAM_HEX)) TILE_DEFS['wool_' + name] = () => wool(c);
@@ -154,10 +172,11 @@ const BLOCKS = {
   log: { top: 'log_top', side: 'log_side', bottom: 'log_top' },
   sandstone: { top: 'sandstone_top', side: 'sandstone_side', bottom: 'sandstone_top' },
   craft: { top: 'craft_top', side: 'craft_side', bottom: 'planks' },
+  farmland: { top: 'farmland_top', side: 'dirt', bottom: 'dirt' },
 };
 export function blockFaces(type) { return BLOCKS[type] || { top: type, side: type, bottom: type }; }
-export const CUTOUT = new Set(['leaves', 'glass']);
-export const EMISSIVE = new Set(['lantern', 'glow_white', 'glow_gold']);
+export const CUTOUT = new Set(['leaves', 'glass', 'wheat']);
+export const EMISSIVE = new Set(['lantern', 'glow_white', 'glow_gold', 'lava']);
 
 // ---------------------------------------------------------------- 图集
 export const TILE_INDEX = {};
@@ -424,6 +443,22 @@ const SPR = {
     return null;
   });
 })();
+// EP04：桶（空桶 / 岩浆桶 / 水桶）、树苗
+(() => {
+  const grid = f => Array.from({ length: 16 }, (_, y) => Array.from({ length: 16 }, (_, x) => f(x, y) || '.').join(''));
+  SPR.bucket = grid((x, y) => {
+    const half = 3 + (y - 4) * 0.25;          // 上宽下窄
+    if (y < 4 || y > 13 || Math.abs(x - 7.5) > half + 0.5) return null;
+    if (Math.abs(x - 7.5) > half - 0.6 || y === 13) return 'a';
+    if (y <= 5) return 'f';                    // 桶里装的东西（岩浆 / 水）
+    return x < 7 ? 'w' : 'l';
+  });
+  SPR.sapling = grid((x, y) => {
+    if (x === 7 && y > 8) return 'k';
+    const d = Math.hypot(x - 7.5, y - 6);
+    return d < 4.2 && (x + y) % 3 !== 0 ? (d < 2 ? 'w' : 'l') : null;
+  });
+})();
 export const SPRITE_PAL = {
   ingot_iron: { a: '#4a4a4e', w: '#ffffff', l: '#d8d8dc', d: '#8a8a90' },
   ingot_gold: { a: '#6a4a06', w: '#fff6c0', l: '#ffd84a', d: '#b8860b' },
@@ -443,6 +478,10 @@ export const SPRITE_PAL = {
   apple: { a: '#5a0c0c', l: '#e0262e', d: '#a8141c', w: '#ffb3a8', k: '#5b3a1a', g: '#3f9b2f' },
   bow: { k: '#7a5230', g: '#3a2a1a', s: '#e8e8e8' },
   star: { a: '#8a8aa8', l: '#d8d8f0', w: '#ffffff' },
+  bucket_lava: { a: '#3a3a40', l: '#a8a8b0', w: '#d8d8de', f: '#f07a18' },
+  bucket_water: { a: '#3a3a40', l: '#a8a8b0', w: '#d8d8de', f: '#3f76e4' },
+  bucket: { a: '#3a3a40', l: '#a8a8b0', w: '#d8d8de', f: '#2a2a30' },
+  sapling: { k: '#6b4a2b', l: '#3f8a2d', w: '#5fae45' },
 };
 export function spritePixels(shape, palName) {
   const pal = SPRITE_PAL[palName || shape];
